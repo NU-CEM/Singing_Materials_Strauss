@@ -5,9 +5,9 @@ We use sonification to listen to the dynamics (vibrations) of materials at an at
 
 ## What is Sonification?
 
-Sonification is the use of non-speech audio to convey information. A well-known scientific example is a geiger counter which produces an audible click when it detects an ionisation event. Sonification is being increasingly used within the physical sciences, in particular for [astrophysical research](https://www.scientificamerican.com/video/listen-to-the-astonishing-chirp-of-two-black-holes-merging). 
+Sonification is the use of non-speech audio to convey information. A well-known scientific example is the geiger counter which produces an audible click when it detects an ionisation event. Sonification is being increasingly used within the physical sciences, in particular for [astrophysical research](https://www.scientificamerican.com/video/listen-to-the-astonishing-chirp-of-two-black-holes-merging). 
 Sonification has also been used as a tool for music composition by a [number of contemporary classical composers](https://www.straebel.com/files/Straebel%202010_Sonification%20Metaphor.pdf). 
-This continuum - from data representation to data abstraction - is briefly discussed in the paper [`Making data sing`](https://www.researchgate.net/profile/Atau-Tanaka/publication/312740596_Making_Data_Sing_Embodied_Approaches_to_Sonification/links/5fc6b5f2299bf188d4e8d59e/Making-Data-Sing-Embodied-Approaches-to-Sonification.pdf), which inspired this project title.
+The continuum from data representation to data abstraction is briefly discussed in the paper [`Making data sing`](https://www.researchgate.net/profile/Atau-Tanaka/publication/312740596_Making_Data_Sing_Embodied_Approaches_to_Sonification/links/5fc6b5f2299bf188d4e8d59e/Making-Data-Sing-Embodied-Approaches-to-Sonification.pdf), which inspired this project title.
 
 ## What are in the notebooks?
 
@@ -19,7 +19,7 @@ which provides us with high-accuracy predictions of the material dynamics.
 The material we explore is BaZrS<sub>3</sub>, a potential new photovoltaic material which is at an early stage of development. 
 
 BaZrS<sub>3</sub> is in the perovskite crystal structure (see Fig. 1 below). This consists of 3D-connected octahedral building blocks.
-We sonify the parameters which describe the extent of octahedral tilting. We treat the datasets as both discrete and continuous, and explore the effect of data smoothing. 
+We sonify the parameters which describe the extent of octahedral tilting. We treat the datasets as both continuous (part one) and discrete (part two), and explore the effect of data smoothing. 
 All the data in this repository has been published as part of our [recent study](https://pubs.acs.org/doi/10.1021/acs.jpclett.4c03517). 
 
 <figure>
