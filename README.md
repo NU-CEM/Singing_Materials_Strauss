@@ -55,7 +55,7 @@ The combination of the [Materials Project API](https://next-gen.materialsproject
 <figure>
     <img src="/assets/img/MP_screenshot.png"
          alt="Screenshot of the Materials Project website"
-         width="500">
+         width="600">
     <figcaption>Figure 3: Screenshot of the Materials Project website</figcaption>
 </figure>
 
