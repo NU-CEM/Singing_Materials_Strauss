@@ -1,7 +1,7 @@
 # Singing Materials with Strauss
 
 This repository explores the sonification of atomistic simulation data using the [Strauss](https://www.audiouniverse.org/research/strauss) software package.
-We can use sonification to listen to the dynamics (vibrations) of materials at an atomic scale; *we can hear how the materials sing*.
+We use sonification to listen to the dynamics (vibrations) of materials at an atomic scale; *to hear how the materials sing*.
 
 ## What is Sonification?
 
