@@ -44,7 +44,7 @@ The phonon dos also determines various material properties including thermal tra
     <img src="./assets/img/SnS_dos.png"
          alt="Tin sulfide (SnS) density of states."
          width="500">
-    <figcaption>Figure 2: Tin sulfide (SnS) density of states. Used with permission from <a href="https://doi.org/10.1039/d1cp02597j">https://doi.org/10.1039/d1cp02597j</a>.</figcaption>
+    <figcaption>Figure 2: Tin sulfide (SnS) density of states. Adapted with permission from <a href="https://doi.org/10.1039/d1cp02597j">https://doi.org/10.1039/d1cp02597j</a>.</figcaption>
 </figure>
 </br>
 </br>
