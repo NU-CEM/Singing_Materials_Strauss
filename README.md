@@ -23,7 +23,7 @@ We sonify the parameters which describe the extent of octahedral tilting. We tre
 All the data in this repository has been published as part of our [recent study](https://pubs.acs.org/doi/10.1021/acs.jpclett.4c03517). 
 
 <figure>
-    <img src="/assets/images/perovskite_structure.png"
+    <img src="./assets/img/perovskite_structure.png"
          alt="Perovskite crystal structure">
     <figcaption>Perovskite crystal structure</figcaption>
 </figure>
@@ -40,7 +40,7 @@ For example, materials which contain organic species will tend to have intra-mol
 The phonon dos also determines various material properties including thermal transport and electron-phonon coupling.
 
 <figure>
-    <img src="/assets/images/SnS_dos"
+    <img src="./assets/img/SnS_dos"
          alt="Tin sulfide (SnS) density of states.">
     <figcaption>Tin sulfide (SnS) density of states. Used with permission from [https://doi.org/10.1039/d1cp02597j](https://doi.org/10.1039/d1cp02597j).</figcaption>
 </figure>
@@ -49,7 +49,7 @@ The notebook uses the `phonon_sonification` module to interface with the Materia
 The combination of the [Materials Project API](https://next-gen.materialsproject.org/api) + [Strauss](https://github.com/james-trayford/strauss) + `phonon_sonification.py` provides a straight forward to sonify the vibrations of many different materials.
 
 <figure>
-    <img src="/assets/images/MP_screenshot.png"
+    <img src="/assets/img/MP_screenshot.png"
          alt="Screenshot of the Materials Project website">
     <figcaption>Screenshot of the Materials Project website</figcaption>
 </figure>
