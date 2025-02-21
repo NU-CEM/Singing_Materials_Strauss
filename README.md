@@ -18,21 +18,22 @@ Molecular dynamics applies classical mechanics (Newton's laws of motion) to pred
 which provides us with high-accuracy predictions of the material dynamics. 
 The material we explore is BaZrS<sub>3</sub>, a potential new photovoltaic material which is at an early stage of development. 
 
-BaZrS<sub>3</sub> is in the perovskite crystal structure. This consists of 3D-connected octahedral building blocks.
+BaZrS<sub>3</sub> is in the perovskite crystal structure (see Fig. 1 below). This consists of 3D-connected octahedral building blocks.
 We sonify the parameters which describe the extent of octahedral tilting. We treat the datasets as both discrete and continuous, and explore the effect of data smoothing. 
 All the data in this repository has been published as part of our [recent study](https://pubs.acs.org/doi/10.1021/acs.jpclett.4c03517). 
 
 <figure>
-    <img src="/assets/images/perovskite_structure.png"
-         alt="Perovskite crystal structure">
-    <figcaption>Perovskite crystal structure</figcaption>
+    <img src="./assets/img/perovskite_structure.png"
+         alt="Perovskite crystal structure"
+         width="250">
+    <figcaption>Figure 1: Perovskite crystal structure</figcaption>
 </figure>
 
 ### Sonification of a Phonon Density of States
 
 This notebook sonifies phonon data.
 Phonons are quantum mechanical quasi-particles which describe the vibrations of atoms in a material. 
-Rather than focus on one particular type of phonon vibration (for example, octahedral tilting), we sonify the phonon density of states (dos). The dos summarises all of the different types of vibrations across a material; 
+Rather than focus on one particular type of phonon vibration (for example, octahedral tilting), we sonify the phonon density of states (dos, Fig. 2). The dos summarises all of the different types of vibrations across a material; 
 it is the density of vibrational states per unit energy (or frequency, as they are related through the relation $E=hf$).
 
 The phonon dos is useful as it provides us with information on crystal structure and chemical composition.
@@ -40,18 +41,22 @@ For example, materials which contain organic species will tend to have intra-mol
 The phonon dos also determines various material properties including thermal transport and electron-phonon coupling.
 
 <figure>
-    <img src="/assets/images/SnS_dos"
-         alt="Tin sulfide (SnS) density of states.">
-    <figcaption>Tin sulfide (SnS) density of states. Used with permission from [https://doi.org/10.1039/d1cp02597j](https://doi.org/10.1039/d1cp02597j).</figcaption>
+    <img src="./assets/img/SnS_dos.png"
+         alt="Tin sulfide (SnS) density of states."
+         width="500">
+    <figcaption>Figure 2: Tin sulfide (SnS) density of states. Adapted with permission from <a href="https://doi.org/10.1039/d1cp02597j">https://doi.org/10.1039/d1cp02597j</a>.</figcaption>
 </figure>
+</br>
+</br>
 
-The notebook uses the `phonon_sonification` module to interface with the Materials Project database. The [Materials Project](https://next-gen.materialsproject.org/) holds data on 100,000's of materials. 
+The notebook uses the `phonon_sonification` module to interface with the Materials Project database. The [Materials Project](https://next-gen.materialsproject.org/) holds data on 100,000's of materials (see Fig. 3). 
 The combination of the [Materials Project API](https://next-gen.materialsproject.org/api) + [Strauss](https://github.com/james-trayford/strauss) + `phonon_sonification.py` provides a straight forward to sonify the vibrations of many different materials.
 
 <figure>
-    <img src="/assets/images/MP_screenshot.png"
-         alt="Screenshot of the Materials Project website">
-    <figcaption>Screenshot of the Materials Project website</figcaption>
+    <img src="/assets/img/MP_screenshot.png"
+         alt="Screenshot of the Materials Project website"
+         width="600">
+    <figcaption>Figure 3: Screenshot of the Materials Project website</figcaption>
 </figure>
 
 ## How do I run the notebooks?

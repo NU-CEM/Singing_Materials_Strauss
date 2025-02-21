@@ -133,7 +133,7 @@ def gamma_frequencies_from_mp_id(mp_id):
     import mp_api
     from mp_api.client import MPRester
 
-    with MPRester('os1XoXmCTeMm5rDO4kY9ClmfVKzuo5ek') as mpr:
+    with MPRester('API_KEY_HERE') as mpr:
         try:
             bs = mpr.materials.phonon.get_data_by_id(mp_id).ph_bs
         except:
@@ -155,7 +155,7 @@ def dos_data_from_mp_id(mp_id):
     import mp_api
     from mp_api.client import MPRester
 
-    with MPRester('os1XoXmCTeMm5rDO4kY9ClmfVKzuo5ek') as mpr:
+    with MPRester('API_KEY_HERE') as mpr:
 
         try: 
             dos = mpr.materials.phonon.get_data_by_id(mp_id).ph_dos
