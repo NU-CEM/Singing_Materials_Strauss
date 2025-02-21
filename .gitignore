@@ -90,3 +90,5 @@ docs/_build/
 
 # Also don't want ipynb checkpoints commited to the repo
 */.ipynb_checkpoints/
+
+**/.DS_Store
