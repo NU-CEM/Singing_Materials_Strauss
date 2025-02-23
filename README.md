@@ -34,7 +34,7 @@ All the data in this repository has been published as part of our [recent study]
 This notebook sonifies phonon data.
 Phonons are quantum mechanical quasi-particles which describe the vibrations of atoms in a material. 
 Rather than focus on one particular type of phonon vibration (for example, octahedral tilting), we sonify the phonon density of states (dos, Fig. 2). The dos summarises all of the different types of vibrations across a material; 
-it is the density of vibrational states per unit energy (or frequency, as they are related through the relation $E=hf$).
+it is the density of vibrational states per unit energy (or per unit frequency, as they are related through the relation $E=hf$).
 
 The phonon dos is useful as it provides us with information on crystal structure and chemical composition.
 For example, materials which contain organic species will tend to have intra-molecular vibrations at high frequencies, and the vibrations of materials with high compositional complexity often span a greater frequency range.
