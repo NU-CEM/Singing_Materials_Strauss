@@ -13,13 +13,13 @@ The continuum from data representation to data abstraction is briefly discussed 
 
 ### Sonification of Octahedral Tilt Amplitudes
 
-This notebook explores the sonification of molecular dynamics data.
+[This notebook](./notebooks/Sonification_of_Octahedral_Tilts_Part_One.ipynb) explores the sonification of molecular dynamics data.
 Molecular dynamics applies classical mechanics (Newton's laws of motion) to predict the motion of atoms in a material. In this dataset the forces which "drive" the molecular dynamics simulations are calculated using quantum chemistry, 
 which provides us with high-accuracy predictions of the material dynamics. 
 The material we explore is BaZrS<sub>3</sub>, a potential new photovoltaic material which is at an early stage of development. 
 
 BaZrS<sub>3</sub> is in the perovskite crystal structure (see Fig. 1 below). This consists of 3D-connected octahedral building blocks.
-We sonify the parameters which describe the extent of octahedral tilting. We treat the datasets as both continuous (part one) and discrete (part two), and explore the effect of data smoothing. 
+We sonify the parameters which describe the extent of octahedral tilting. We treat the datasets as both continuous ([part one](./notebooks/Sonification_of_Octahedral_Tilts_Part_One.ipynb)) and discrete ([part two](./notebooks/Sonification_of_Octahedral_Tilts_Part_Two.ipynb)), and explore the effect of data smoothing. 
 All the data in this repository has been published as part of our [recent study](https://pubs.acs.org/doi/10.1021/acs.jpclett.4c03517). 
 
 <figure>
@@ -31,7 +31,7 @@ All the data in this repository has been published as part of our [recent study]
 
 ### Sonification of a Phonon Density of States
 
-This notebook sonifies phonon data.
+[This notebook](./notebooks/Sonification_of_Phonon_DOS.ipynb) sonifies phonon data.
 Phonons are quantum mechanical quasi-particles which describe the vibrations of atoms in a material. 
 Rather than focus on one particular type of phonon vibration (for example, octahedral tilting), we sonify the phonon density of states (dos, Fig. 2). The dos summarises all of the different types of vibrations across a material; 
 it is the density of vibrational states per unit energy (or per unit frequency, as they are related through the relation $E=hf$).
