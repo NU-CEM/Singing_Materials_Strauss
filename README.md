@@ -62,7 +62,7 @@ The combination of the [Materials Project API](https://next-gen.materialsproject
 ## How do I run the notebooks?
 
 The notebooks contain links to audio files so that you can listen to the sonifications which are produced by the code.
-To run the notebooks locally you will need to install the [Strauss](https://www.audiouniverse.org/research/strauss) software package.
+If you want to edit or run the notebooks locally you will need to install the [Strauss](https://www.audiouniverse.org/research/strauss) software package.
 You will also need the standard Python scientific stack (Numpy, Matplotlib, Scipy).
 To access the Materials Project you will need to register for a Materials Project account, install the Materials Project API and generate an API key. More details are [here](https://next-gen.materialsproject.org/api).
 The datasets and scripts used in each Notebook are contained in this repository. To download the full repository you can `git clone`.
