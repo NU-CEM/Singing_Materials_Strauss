@@ -49,7 +49,7 @@ The phonon dos also determines various material properties including thermal tra
 </br>
 </br>
 
-The notebook uses the `phonon_sonification` module to interface with the Materials Project database. The [Materials Project](https://next-gen.materialsproject.org/) holds data on 100,000's of materials (see Fig. 3). 
+This notebook uses the `phonon_sonification` module to interface with the Materials Project database. The [Materials Project](https://next-gen.materialsproject.org/) holds data on 100,000's of materials (see Fig. 3). 
 The combination of the [Materials Project API](https://next-gen.materialsproject.org/api) + [Strauss](https://github.com/james-trayford/strauss) + `phonon_sonification.py` provides a straight forward to sonify the vibrations of many different materials.
 
 <figure>
