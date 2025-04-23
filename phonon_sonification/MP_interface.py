@@ -8,6 +8,7 @@ import os
 import argparse
  
 sample_rate = 44100
+api_string = None # insert API key here
 
 # this function adapted from
 # https://stackoverflow.com/questions/73494717/trying-to-play-multiple-frequencies-in-python-sounddevice-blow-horrific-speaker
@@ -117,7 +118,8 @@ def gamma_frequencies_from_mesh(phonon_mesh_filepath):
 def process_imaginary(phonon_frequencies):
     # remove any imaginary modes
     phonon_cleaned_frequencies = [frequency for frequency in phonon_frequencies if frequency > 0]
-
+    if len(phonon_frequencies) != len(phonon_cleaned_frequencies):
+        print("There are {} imaginary frequencies which have not been processed".format(len(phonon_frequencies)-len(phonon_cleaned_frequencies)))
     return phonon_cleaned_frequencies
 
 def process_imaginary_dos(dos,phonon_frequencies) :
@@ -133,7 +135,7 @@ def gamma_frequencies_from_mp_id(mp_id):
     import mp_api
     from mp_api.client import MPRester
 
-    with MPRester('API_KEY_HERE') as mpr:
+    with MPRester(api_string) as mpr:
         try:
             bs = mpr.materials.phonon.get_data_by_id(mp_id).ph_bs
         except:
@@ -155,7 +157,7 @@ def dos_data_from_mp_id(mp_id):
     import mp_api
     from mp_api.client import MPRester
 
-    with MPRester('API_KEY_HERE') as mpr:
+    with MPRester(api_string) as mpr:
 
         try: 
             dos = mpr.materials.phonon.get_data_by_id(mp_id).ph_dos
