@@ -305,9 +305,11 @@ class PhononDOSSonifier:
         return soni
     
     def sonify_multi_site(self,
-                         site_configs: List[Dict],
-                         temperature: Optional[float] = None,
-                         output_path: Optional[str] = None) -> Sonification:
+                          site_configs: str,
+                          temperature: Optional[float] = None,
+                          use_lfo: bool = False,
+                          lfo_target: str = 'pitch',
+                          output_path: str = None) -> Sonification:
         """
         Sonify multiple sites as a chord
         
@@ -321,95 +323,40 @@ class PhononDOSSonifier:
         print(f"Duration: {self.duration}s, Temp: {temperature or 'athermal'}")
         print(f"Sites: {len(site_configs)}")
         print(f"{'='*60}\n")
+
         
-        # Create Score
-        score = Score(STRAUSS_BASE_NOTE, format_duration_for_strauss(self.duration))
-        
-        # Create generator with default preset
-        generator = Synthesizer()
-        generator.load_preset('pitch_mapper')
-        
-        # Create Objects source for all sites
-        sources = Objects(['pitch', 'pitch_shift', 'volume', 'time_evo'])
-        
-        # Collect data for all sites
-        pitches = []
-        pitch_shifts = []
-        volumes = []
-        time_evos = []
-        
+        soni_list = []
         for config in site_configs:
             site = config['site']
-            print(f"Adding: {site}")
-            
-            if site not in self.dos_dict['projection']:
-                print(f"  Warning: {site} not found, skipping")
-                continue
-            
-            site_data = self.dos_dict['projection'][site]
-            
-            # Get stats
-            if temperature is not None:
-                if 'thermal' in site_data['stats'] and str(temperature) in site_data['stats']['thermal']:
-                    stats = site_data['stats']['thermal'][str(temperature)]
-                else:
-                    stats = site_data['stats']['athermal']
-            else:
-                stats = site_data['stats']['athermal']
-            
-            band_centre_hz = stats['band_centre']
-            
-            all_integrated = [self.dos_dict['projection'][s]['stats']['athermal']['integrated_dos'] 
-                             for s in self.dos_dict['projection'].keys()]
-            rel_amp = stats['integrated_dos'] / max(all_integrated)
-            volume = 0.3 + 0.6 * rel_amp
-            
-            # Add to lists
-            pitches.append(0.)
-            pitch_shifts.append(band_centre_hz)
-            volumes.append(volume)
-            time_evos.append(np.array([0.0, self.duration]))
+            soni_list.append(self.sonify_site(site, 
+                                        temperature= temperature,
+                                        use_lfo = use_lfo,
+                                        lfo_target = lfo_target
+        ))
         
-        # Create datadict
-        datadict = {
-            'pitch': pitches,
-            'pitch_shift': pitch_shifts,
-            'volume': volumes,
-            'time_evo': time_evos
-        }
-        
-        mlims = {
-            'pitch_shift': [self.fmin_phonon,self.fmax_phonon]
-        }
+        for i in range(1,len(soni_list)):
+            soni_list[i-1].render()
+            soni_list[i].out_channels = soni_list[i-1].out_channels
 
-        plims={
-            'pitch_shift': [0,36]
-        }
+        joint_soni = soni_list[-1]
+        joint_soni.render()
 
-        sources.fromdict(datadict)
-        sources.apply_mapping_functions(map_lims=mlims, param_lims=plims)
-        
-        # Create Sonification
-        print(f"\n{'='*60}")
-        print("Rendering...")
-        audio_system = "stereo"
-        soni = Sonification(score, sources, generator, audio_system)
-        soni.render()
-        
         # Save
         if output_path is None:
             temp_str = f"{int(temperature)}K" if temperature else "athermal"
             output_path = f"phonon_{self.mp_id}_{temp_str}_chord.wav"
         
-        soni.save(output_path)
+        joint_soni.save(output_path)
         print(f"Saved: {output_path}")
         print(f"{'='*60}\n")
         
-        return soni
+        return joint_soni
     
     def sonify_all_sites(self,
-                        temperature: Optional[float] = None,
-                        output_path: Optional[str] = None) -> Sonification:
+                          temperature: Optional[float] = None,
+                          use_lfo: bool = False,
+                          lfo_target: str = 'pitch',
+                          output_path: str = None) -> Sonification:
         """
         Convenience: sonify all sites
         """
@@ -422,7 +369,9 @@ class PhononDOSSonifier:
         return self.sonify_multi_site(
             site_configs=site_configs,
             temperature=temperature,
-            output_path=output_path
+            output_path=output_path,
+            use_lfo = use_lfo,
+            lfo_target = lfo_target
         )
 
 
@@ -513,7 +462,9 @@ if __name__ == "__main__":
             elif args.all_sites:
                 sonifier.sonify_all_sites(
                     temperature=args.temp,
-                    output_path=args.output
+                    output_path=args.output,
+                    use_lfo=args.lfo,
+                    lfo_target=args.lfo_target
                 )
             
             elif args.site:
@@ -537,7 +488,9 @@ if __name__ == "__main__":
                 sonifier.sonify_multi_site(
                     site_configs=site_configs,
                     temperature=args.temp,
-                    output_path=args.output
+                    output_path=args.output,
+                    use_lfo=args.lfo,
+                    lfo_target=args.lfo_target
                 )
             
             else:
