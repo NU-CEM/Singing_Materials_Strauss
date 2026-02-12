@@ -4,14 +4,12 @@ Phonon DOS Sonification using STRAUSS.
 This script sonifies phonon DOS data from Materials Project.
 
 Mappings:
-- Phonon band centre → pitch_shift (semitones from C4)
-- Projected DOS → volume (amplitude)
-- DOS quantiles (Q25, Q75) → LFO rate and depth
-  - Q25 position controls LFO frequency (1-5 Hz)
-  - IQR (Q75-Q25) controls LFO modulation depth
+- Phonon band centre → pitch_shift
+- Projected DOS → volume 
+- DOS inter quartile range → LFO modulation rate and depth
 
 Features:
-- Single site sonification with optional vibrato/tremolo
+- Single site sonification 
 - Multi-site chord sonification
 - Temperature-dependent DOS weighting
 - Uses STRAUSS default synthesizer (detuned sawtooth)
@@ -231,7 +229,17 @@ class PhononDOSSonifier:
         
         # Create Generator - use complete default
         generator = Synthesizer()
-        generator.load_preset('pitch_mapper')
+        
+        
+        # testing here, but if implemented would have to have options for most elements (implemented as look-up table)
+        if site_name == 'Ca_1':
+            generator.modify_preset(mods.brassy_mods)
+        elif site_name == 'O_1':
+            generator.modify_preset(mods.organ_mods)
+        elif site_name == 'C_1':
+            generator.modify_preset(mods.stringy_mods)
+        else:
+            generator.load_preset('pitch_mapper')
         
         # Add LFO if requested
         if use_lfo:
@@ -273,17 +281,24 @@ class PhononDOSSonifier:
         # Calculate parameters
         # TODO: might want to update this so it is temperature dependent.
         
-        all_integrated = [self.dos_dict['projection'][s]['stats']['athermal']['integrated_dos'] 
-                         for s in self.dos_dict['projection'].keys()]
+        if temperature is not None:
+            all_integrated = [self.dos_dict['projection'][s]['stats']['thermal'][str(temperature)]['integrated_dos'] 
+                            for s in self.dos_dict['projection'].keys()]
+        else:
+            all_integrated = [self.dos_dict['projection'][s]['stats']['athermal']['integrated_dos'] 
+                            for s in self.dos_dict['projection'].keys()]
         rel_amplitude = stats['integrated_dos'] / max(all_integrated)
-        volume = 0.4 + 0.5 * rel_amplitude
+        volume = 0.1 + 0.8 * rel_amplitude
+        print(f"  Volume: {volume:.2f} (from integrated dos)")
 
         mlims = {
-            'pitch_shift': [self.fmin_phonon,self.fmax_phonon]
+            'pitch_shift': [self.fmin_phonon,self.fmax_phonon],
+            'volume': [0,1.0]
         }
 
         plims={
-            'pitch_shift': [0,36]
+            'pitch_shift': [0,36],
+            'volume': [0,1]
         }
         
         # Create data dict
@@ -361,6 +376,7 @@ class PhononDOSSonifier:
         Convenience: sonify all sites
         """
         sites = list(self.dos_dict['projection'].keys())
+        sites.remove('all')
         
         site_configs = []
         for site in sites:
