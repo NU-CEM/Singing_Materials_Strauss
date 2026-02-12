@@ -197,7 +197,7 @@ def get_dos_raw(mp_id):
     
 def dos_stats_analysis(mp_id,temp=None):
     """for each entry in a dos_dict, calculate the integrated dos, the phonon band centre, the quantiles and the IQR and of the dos distribution in Hz (discounting any negative frequencies) and add these to the nested dicts. The dos is optionally weighted by Bose Einstein occupation at a specified temp."""
-    if 0 in temp:
+    if temp and 0 in temp:
         print ("cannot calculate stats for 0K")
         temp.remove(0)
     dos_dict = get_dos_raw(mp_id)
