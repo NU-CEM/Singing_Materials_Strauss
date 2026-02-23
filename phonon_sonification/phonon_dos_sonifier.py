@@ -30,13 +30,16 @@ from typing import Dict, List, Tuple, Optional, Union
 import warnings
 
 # Import your existing modules
-from MP_interface import dos_stats_analysis, scale_by_occupation
-from utilities import format_duration_for_strauss
-from phonon_frequency_mapping import phonon_to_audible_log, phonon_to_note
+
+import sys
+sys.path.append('../')
+from phonon_sonification import MP_interface, utilities, phonon_frequency_mapping, mods
+from phonon_sonification.MP_interface import dos_stats_analysis, scale_by_occupation
+from phonon_sonification.utilities import format_duration_for_strauss
+from phonon_sonification.phonon_frequency_mapping import phonon_to_audible_log, phonon_to_note
 
 # STRAUSS Score requires a chord or note sequence. I don't really understand this.
 STRAUSS_BASE_NOTE = [["G3"]]
-
 
 class PhononDOSSonifier:
     """
@@ -177,21 +180,11 @@ class PhononDOSSonifier:
             print(f"  IQR:         {stats['IQR']:.2e} Hz")
         
         print("\n" + "="*80)
-    
-    def sonify_site(self,
-                   site_name: str,
-                   temperature: Optional[float] = None,
-                   use_lfo: bool = False,
-                   lfo_target: str = 'pitch') -> Sonification:
-        """
-        Sonify a single site
-        
-        Args:
-            site_name: Site to sonify (e.g., 'Fe_2', 'O_6')
-            temperature: Temperature in K (None for athermal)
-            use_lfo: Add LFO modulation (vibrato/tremolo from IQR)
-            lfo_target: 'pitch' (vibrato) or 'volume' (tremolo)
-        """
+
+    def get_site_stats(self,
+                      site_name: str,
+                      temperature: Optional[float] = None) -> Dict:
+
         # Get site data
         if site_name not in self.dos_dict['projection']:
             available = list(self.dos_dict['projection'].keys())
@@ -208,28 +201,168 @@ class PhononDOSSonifier:
             if str(temperature) not in site_data['stats']['thermal']:
                 raise ValueError(f"Temperature {temperature}K not found")
             stats = site_data['stats']['thermal'][str(temperature)]
-            temp_label = f"{int(temperature)}K"
+            
         else:
             stats = site_data['stats']['athermal']
+
+        return stats
+        
+    def spectraliser(self,
+                     site_name: str,
+                     temperature: Optional[float] = None,
+                     mapping: Optional[float] = None) -> Sonification:
+        """Can specify an optional mapping to weight the data amplitudes. 
+        A lambda function can be passed as an argument, or you can use the "attentuate_low_freq" option."""
+    
+        score =  Score(STRAUSS_BASE_NOTE, length)
+        
+        #set up spectralizer generator
+        generator = Spectralizer()
+        
+        # Lets pick the mapping frequency range for the spectrum...
+        generator.modify_preset({'min_freq':self.fmin_audible, 'max_freq':self.fmax_audible})
+
+        stats = self.get_site_stats(site_name, temperature)
+        amplitudes = stats['densities']
+    
+        if mapping == "attenuate_low_freq":
+            amplitudes = amplitudes * [x for x in range(len(amplitudes))]  # apply linear mapping
+    
+        elif mapping == "amplify_large_dos":
+            amplitudes = amplitudes = [x**2 if x>(0.5*max(amplitudes)) else x for x in amplitudes] # anything in the upper 50% of dos is squared
+    
+        if callable(mapping)==True:
+            amplitudes = amplitudes * [mapping(x) for x in range(len(amplitudes))]  # apply a lambda mapping 
+            
+        # set up spectrum and choose some envelope parameters for fade-in and fade-out
+        data = {'spectrum':[amplitudes], 'pitch':[0], 
+                'volume_envelope/D':[0.9], 
+                'volume_envelope/S':[0.], 
+                'volume_envelope/A':[0.1]}
+    
+        # again, use maximal range for the mapped parameters
+        mlims = {'spectrum': [self.fmin_phonon,self.fmax_phonon]}
+        
+        # set up source
+        sources = Events(data.keys())
+        sources.fromdict(data)
+        sources.apply_mapping_functions(map_lims=mlims)
+        
+        # render and play sonification!
+        soni = Sonification(score, sources, generator, system)
+
+        return soni
+
+    def sonify_site_choral(self,
+                           site_name: str,
+                           sample_path: Optional[str] = "../data/samples/Solitary_Choir/Samples/",
+                           temperature: Optional[float] = None) -> Sonification:
+        """
+        Sonify a single site using a choral sample.
+        
+        Args:
+            site_name: Site to sonify (e.g., 'Fe_2', 'O_6')
+            temperature: Temperature in K (None for athermal)
+        """
+        if temperature is not None:
+            temp_label = f"{int(temperature)}K"
+
+        else:
             temp_label = "athermal"
+        
+        stats = self.get_site_stats(site_name, temperature)
         
         band_centre_hz = stats['band_centre']
         q25_hz = stats['quantile_25']
         q75_hz = stats['quantile_75']
         iqr_hz = stats['IQR']
-
-        pitch_shift_semitones = self.phonon_to_pitch_shift(band_centre_hz)
         
         print(f"\nSonifying: {site_name} ({temp_label})")
-        print(f"  Band centre: {band_centre_hz:.2e} Hz → {pitch_shift_semitones:.1f} semitones")
+        print(f"  Band centre: {band_centre_hz:.2e} Hz")
+
+        # Calculate volume using integrated dos
+        if temperature is not None:
+            all_integrated = [self.dos_dict['projection'][s]['stats']['thermal'][str(temperature)]['integrated_dos'] 
+                            for s in self.dos_dict['projection'].keys()]
+        else:
+            all_integrated = [self.dos_dict['projection'][s]['stats']['athermal']['integrated_dos'] 
+                            for s in self.dos_dict['projection'].keys()]
+        rel_amplitude = stats['integrated_dos'] / max(all_integrated)
+        volume = 0.1 + 0.8 * rel_amplitude
+        print(f"  Volume: {volume:.2f} (from integrated dos)")
+
+        # Create generator
+        generator = Sampler("../data/samples/Solitary_Choir/Samples/")
+
+        generator.modify_preset({'note_length':self.duration,
+                                 'volume_envelope': {'use':'off',
+                            # A,D,R values in seconds, S sustain fraction from 0-1 that note
+                            # will 'decay' to (after time A+D)
+                            'A':0.1,    # ✏️ Time to fade in note to maximum volume, using 10 ms
+                            'D':0.0,    # ✏️ Time to fall from maximum volume to sustained level (s), irrelevant while S is 1 
+                            'S':1.,      # ✏️ fraction of maximum volume to sustain note at while held, 1 implies 100% 
+                            'R':.2}}) # ✏️ Time to fade out once note is released, using 100 ms
+        
+        notes = [["G2","A2","A#2","B2","C3","C#3","D3","D#3","E3","F3","F#3","G3","G#3","A3","A3","B3","C4","C#4","D4","D#4","E4","F4","F#4","G4","G#4","A4","A#4","B4","C5"]]
+        
+        # Create Score
+        score =  Score(notes,self.duration,pitch_binning="uniform")
+
+        # Set data and limits
+        data = {'pitch': band_centre_hz,
+                'time': [0],
+                'volume': volume}
+        
+        mlims = {'time': [0,self.duration+0.3],
+                'pitch': [self.fmin_phonon,self.fmax_phonon],
+                'volume':[0,1]}
+        
+        # set up source
+        sources = Objects(data.keys())
+        sources.fromdict(data)
+        sources.apply_mapping_functions(map_lims=mlims)
+
+        audio_system = "stereo"
+        soni = Sonification(score, sources, generator, audio_system)
+        
+        return soni
+        
+    def sonify_site_synth(self,
+                   site_name: str,
+                   temperature: Optional[float] = None,
+                   use_lfo: bool = False,
+                   lfo_target: str = 'pitch') -> Sonification:
+        """
+        Sonify a single site using a synthesiser.
+        
+        Args:
+            site_name: Site to sonify (e.g., 'Fe_2', 'O_6')
+            temperature: Temperature in K (None for athermal)
+            use_lfo: Add LFO modulation (vibrato/tremolo from IQR)
+            lfo_target: 'pitch' (vibrato) or 'volume' (tremolo)
+        """
+        if temperature is not None:
+            temp_label = f"{int(temperature)}K"
+
+        else:
+            temp_label = "athermal"
+        
+        stats = self.get_site_stats(site_name, temperature)
+        
+        band_centre_hz = stats['band_centre']
+        q25_hz = stats['quantile_25']
+        q75_hz = stats['quantile_75']
+        iqr_hz = stats['IQR']
+        
+        print(f"\nSonifying: {site_name} ({temp_label})")
+        print(f"  Band centre: {band_centre_hz:.2e} Hz")
         print(f"  IQR: {iqr_hz:.2e} Hz")
         
         # Create Score
-        score = Score(STRAUSS_BASE_NOTE, format_duration_for_strauss(self.duration))
+        score = Score(STRAUSS_BASE_NOTE, self.duration)
         
         # Create Generator - use complete default
         generator = Synthesizer()
-        
         
         # testing here, but if implemented would have to have options for most elements (implemented as look-up table)
         if site_name == 'Ca_1':
@@ -324,7 +457,8 @@ class PhononDOSSonifier:
                           temperature: Optional[float] = None,
                           use_lfo: bool = False,
                           lfo_target: str = 'pitch',
-                          output_path: str = None) -> Sonification:
+                          output_path: str = None,
+                          choral: bool = False) -> Sonification:
         """
         Sonify multiple sites as a chord
         
@@ -343,12 +477,16 @@ class PhononDOSSonifier:
         soni_list = []
         for config in site_configs:
             site = config['site']
-            soni_list.append(self.sonify_site(site, 
-                                        temperature= temperature,
-                                        use_lfo = use_lfo,
-                                        lfo_target = lfo_target
-        ))
-        
+            if choral is False:
+                soni_list.append(self.sonify_site_synth(site, 
+                                            temperature= temperature,
+                                            use_lfo = use_lfo,
+                                            lfo_target = lfo_target
+            ))
+            elif choral is True:
+                soni_list.append(self.sonify_site_choral(site, 
+                                            temperature= temperature
+            ))
         for i in range(1,len(soni_list)):
             soni_list[i-1].render()
             soni_list[i].out_channels = soni_list[i-1].out_channels
@@ -371,7 +509,8 @@ class PhononDOSSonifier:
                           temperature: Optional[float] = None,
                           use_lfo: bool = False,
                           lfo_target: str = 'pitch',
-                          output_path: str = None) -> Sonification:
+                          output_path: str = None,
+                          choral: bool = False) -> Sonification:
         """
         Convenience: sonify all sites
         """
@@ -387,7 +526,8 @@ class PhononDOSSonifier:
             temperature=temperature,
             output_path=output_path,
             use_lfo = use_lfo,
-            lfo_target = lfo_target
+            lfo_target = lfo_target,
+            choral = choral
         )
 
 
@@ -408,7 +548,7 @@ def example_usage():
     print("\n" + "="*60)
     print("Example 2: Single site with vibrato")
     print("="*60)
-    soni = sonifier.sonify_site(
+    soni = sonifier.sonify_site_synth(
         site_name='Fe2+',
         temperature=300,
         use_lfo=True,
@@ -453,6 +593,9 @@ if __name__ == "__main__":
                        help='LFO target: pitch=vibrato, volume=tremolo')
     parser.add_argument('--info', action='store_true', help='Show available sites')
     parser.add_argument('--output', type=str, default=None, help='Output file')
+    parser.add_argument('--synth', action='store_true', help='synth mode')
+    parser.add_argument('--choral', action='store_true', help='choral mode')
+    parser.add_argument('--spectral', action='store_true', help='spectral')
     parser.add_argument('--examples', action='store_true', help='Run examples')
     
     args = parser.parse_args()
@@ -480,15 +623,25 @@ if __name__ == "__main__":
                     temperature=args.temp,
                     output_path=args.output,
                     use_lfo=args.lfo,
-                    lfo_target=args.lfo_target
+                    lfo_target=args.lfo_target,
+                    choral=args.choral,
+                    synth=args.synth,
+                    spectral=args.spectral
                 )
             
-            elif args.site:
-                soni = sonifier.sonify_site(
+            elif args.site and synth is True:
+                soni = sonifier.sonify_site_synth(
                     site_name=args.site,
                     temperature=args.temp,
                     use_lfo=args.lfo,
                     lfo_target=args.lfo_target
+                )
+
+
+            elif args.site and synth:
+                soni = sonifier.sonify_site_choral(
+                    site_name=args.site,
+                    temperature=args.temp
                 )
                 
                 output = args.output or f"phonon_{args.mp_id}_{args.site}_{args.temp or 'athermal'}.wav"
@@ -506,7 +659,8 @@ if __name__ == "__main__":
                     temperature=args.temp,
                     output_path=args.output,
                     use_lfo=args.lfo,
-                    lfo_target=args.lfo_target
+                    lfo_target=args.lfo_target,
+                    choral=args.choral
                 )
             
             else:
