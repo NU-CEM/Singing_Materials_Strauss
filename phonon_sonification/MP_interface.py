@@ -212,6 +212,7 @@ def dos_stats_analysis(mp_id,temp=None):
         site_dict['stats']['athermal']['quantile_25'] = weighted_quantile(f, densities, 0.25)
         site_dict['stats']['athermal']['quantile_75'] = weighted_quantile(f, densities, 0.75)
         site_dict['stats']['athermal']['IQR'] = phonon_dos_IQR(f,densities)
+        site_dict['stats']['athermal']['densities'] = densities
         
         if temp:
             site_dict['stats']['thermal'] = {}
@@ -225,6 +226,7 @@ def dos_stats_analysis(mp_id,temp=None):
                 site_dict['stats']['thermal'][str(t)]['quantile_25'] = weighted_quantile(f, densities_scaled, 0.25)
                 site_dict['stats']['thermal'][str(t)]['quantile_75'] = weighted_quantile(f, densities_scaled, 0.75)
                 site_dict['stats']['thermal'][str(t)]['IQR'] = phonon_dos_IQR(f,densities_scaled)
+                site_dict['stats']['thermal'][str(t)]['densities'] = densities_scaled
 
     return dos_dict
 

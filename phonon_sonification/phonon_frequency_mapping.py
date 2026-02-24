@@ -1,7 +1,7 @@
 import math
 
 NOTE_NAMES = ["C", "C#", "D", "Eb", "E", "F",
-              "F#", "G", "Ab", "A", "Bb", "B"]
+              "F#", "G", "G#", "A", "A#", "B"]
 
 def phonon_to_audible_log(
     f_phonon,

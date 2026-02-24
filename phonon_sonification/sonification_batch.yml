@@ -1,0 +1,40 @@
+mp_id: mp-3953
+
+globals:
+  duration: 5.0
+  temp: null
+#  mode: spectral
+#  mapping: None
+  lfo: true
+#  sites: None
+#  all_sites: true
+  lfo_target: volume
+  overwrite: false
+#sweeps:
+#  temp: [100, 300, 600]
+#  site: [Fe_2, O_6]
+
+jobs:
+  - name: tune
+    mode: choral
+    site: Ca_1
+
+  - name: tune
+    mode: choral
+    site: C_1
+
+  - name: tune
+    mode: choral
+    site: O_1
+
+mix:
+  output: concat_again_low.wav
+  overwrite: true
+  mode: concat
+  fade: 2.0          
+  curve: tri
+  quiet: true
+  weights:
+    - 1.0   
+    - 1.0
+  normalise: true
