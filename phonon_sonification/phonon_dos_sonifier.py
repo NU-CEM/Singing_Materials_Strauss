@@ -607,17 +607,3 @@ class PhononDOSSonifier:
             mode = mode
         )
 
-### find good test cases from "Rock music": soft, hard, complex, simple, bonding, "rattler", temperature --> create notebook to showcase, and generally test!
-
-### specify material 
-### specify temperature or athermal
-
-### sounds (can select one or more):
-### - spectral
-### - synth
-### - choral
-
-### modes (select one only)
-### - chord (play full dos data)
-### - broken chord (play each projected dos with annotation of atom type)
-### - composition (randomly create a three minute composition using chords and unannotated broken chords)
