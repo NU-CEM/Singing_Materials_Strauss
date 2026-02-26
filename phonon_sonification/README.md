@@ -34,24 +34,4 @@ First, bear with me, several parts of this package are (probably) currently brok
 `visualisation.py` : functions for plotting the density of states data. because seeing things is still useful.
 
 
-## TODO
 
-- [ ] Find good test cases from "Rock music": soft, hard, complex, simple, bonding, "rattler", temperature --> create notebook to showcase
-- [ ] There are lots of things broken, need to test
-
-## Plan for Web App
-
-1. specify material 
-2. specify temperature or athermal
-
-3. specify sonification(s) (can select one or more)
-  - spectral
-  - synth
-  - choral
-
-4. specify composition (select one only)
-  - chord (play full dos data)
-  - broken chord (play each projected dos with annotation of atom type)
-  - evolution (randomly create a three minute composition using chords and unannotated broken chords)
-
-For any given material and temperature this will result in 21 different options: 7 ways to specify the sonification mappings, and three ways to play each of these.
