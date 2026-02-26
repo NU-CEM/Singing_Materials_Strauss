@@ -3,6 +3,8 @@
 This repository explores the sonification of atomistic simulation data using the [Strauss](https://www.audiouniverse.org/research/strauss) software package.
 We use sonification to listen to the vibrations of materials at an atomic scale; *to hear how the materials sing*.
 
+The key part of the repository is the `phonon_sonification` Python package which is contained in the `phonon_sonification` folder. There are more details about this package in the folder's [README.md](https://github.com/NU-CEM/Singing_Materials_Strauss/tree/main/phonon_sonification).
+
 ## What is Sonification?
 
 Sonification is the use of non-speech audio to convey information. A well-known scientific example is the geiger counter which produces an audible click when it detects an ionisation event. Sonification is being increasingly used within the physical sciences, in particular for [astrophysical research](https://www.scientificamerican.com/video/listen-to-the-astonishing-chirp-of-two-black-holes-merging). 
@@ -10,6 +12,8 @@ Sonification has also been used as a tool for music composition by a [number of 
 The continuum from data representation to data abstraction is briefly discussed in the paper [`Making data sing`](https://www.researchgate.net/profile/Atau-Tanaka/publication/312740596_Making_Data_Sing_Embodied_Approaches_to_Sonification/links/5fc6b5f2299bf188d4e8d59e/Making-Data-Sing-Embodied-Approaches-to-Sonification.pdf).
 
 ## What are in the notebooks?
+
+The `notebooks` folder contains a series of notebooks outlining different approaches to the sonification of materials modelling data.
 
 ### Sonification of Octahedral Tilt Amplitudes
 
