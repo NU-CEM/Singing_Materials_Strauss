@@ -38,8 +38,8 @@ import warnings
 
 import sys
 sys.path.append('../')
-from phonon_sonification import MP_interface, utilities, phonon_frequency_mapping, mods
-from phonon_sonification.MP_interface import dos_stats_analysis, scale_by_occupation
+from phonon_sonification import mp_interface, utilities, phonon_frequency_mapping, mods
+from phonon_sonification.mp_interface import dos_stats_analysis, scale_by_occupation
 from phonon_sonification.utilities import format_duration_for_strauss
 from phonon_sonification.phonon_frequency_mapping import phonon_to_audible_log, phonon_to_note
 
