@@ -5,23 +5,9 @@ import scipy
 from scipy import constants
 import os
 from dotenv import load_dotenv
+from utilities import process_imaginary, process_imaginary_dos
 
 load_dotenv () # use python-dotenv library for storing secrets in a .env file in project route (or at another path that is specified here)
-
-def process_imaginary(phonon_frequencies):
-    # remove any imaginary modes
-    phonon_frequencies = list(phonon_frequencies)
-    phonon_cleaned_frequencies = [frequency for frequency in phonon_frequencies if frequency > 0]
-    if len(phonon_frequencies) != len(phonon_cleaned_frequencies):
-        print("There are {} imaginary frequencies which have not been processed".format(len(phonon_frequencies)-len(phonon_cleaned_frequencies)))
-    return np.array(phonon_cleaned_frequencies)
-
-def process_imaginary_dos(dos,phonon_frequencies) :
-    # remove dos which correspond to imaginary modes
-    phonon_frequencies = list(phonon_frequencies)
-    dos_cleaned_frequencies = [dos[i] for i in range(len(phonon_frequencies)) if phonon_frequencies[i] > 0]
-
-    return np.array(dos_cleaned_frequencies)
 
 def gamma_frequencies_from_mp_id(mp_id):
     """return phonon frequencies (in Hz) at gamma point from for a material hosted on the Materials Project.
