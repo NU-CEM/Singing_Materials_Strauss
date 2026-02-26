@@ -1,6 +1,6 @@
 import math
 
-NOTE_NAMES = ["C", "C#", "D", "Eb", "E", "F",
+NOTE_NAMES = ["C", "C#", "D", "D#", "E", "F",
               "F#", "G", "G#", "A", "A#", "B"]
 
 def phonon_to_audible_log(
