@@ -1,10 +1,10 @@
 import yaml
 import itertools
-import subprocess
 import re
 from copy import deepcopy
 from pathlib import Path
 from phonon_dos_sonifier import PhononDOSSonifier
+from phonon_mixer import superposition, concatenation, composition
 
 KEY_MAP = {
   "mode": "m",
@@ -26,7 +26,8 @@ def run_spec(path: str):
 
     sweep_cases = list(expand_sweeps(sweeps)) or [{}]
 
-    outputs = []
+    outputs = {}  
+    job_order = [] 
 
     temp = globals_cfg.get("temp")
     duration = globals_cfg.get("duration", 10.0)
@@ -49,68 +50,13 @@ def run_spec(path: str):
                 print(f"Skipping existing: {output}")
             else:
                 run_job(sonifier, cfg, output)
-            outputs.append(output)
+                
+            job_name = job["name"]
+            outputs[job_name] = output
+            job_order.append(job_name)
              
     if "mix" in spec:
-
-        n = len(outputs)
-        mix = spec["mix"]
-        
-        quiet = mix.get("quiet", False)
-        
-        weights = mix.get("weights")
-        normalise = mix.get("normalise", True)
-        mode = mix.get("mode", True)
-        overwrite = mix.get("overwrite", False)
-        
-        cmd = ["ffmpeg"]
-        
-        if quiet:
-            cmd += ["-loglevel", "error"]
-
-        if overwrite:
-            cmd.append("-y")
-        
-        for wav in outputs:
-            cmd += ["-i", wav]
-
-        if mode == "super":
-            n = len(outputs)
-            weights = mix.get("weights")
-
-            if weights:
-                w = " ".join(str(x) for x in weights)
-                filter_arg = f"amix=inputs={n}:weights={w}:normalize=1"   # TODO: currently always normalised
-            else:
-                filter_arg = f"amix=inputs={n}:normalize=1"
-
-            cmd += ["-filter_complex", filter_arg, mix["output"]]
-
-        elif mode == "concat":   # TODO: think about loudness matching
-            # build filter graph
-            fade = mix.get("fade", 1.0)
-            curve = mix.get("curve", "tri")
-            
-            filter_parts = []
-            last = "0"
-            
-            for i in range(1, len(outputs)):
-                out = f"x{i}"
-                filter_parts.append(
-                    f"[{last}][{i}]acrossfade=d={fade}:c1={curve}:c2={curve}[{out}]"
-                )
-                last = out
-            
-            filter_arg = ";".join(filter_parts)
-            
-            cmd += [
-                "-filter_complex", filter_arg,
-                "-map", f"[{last}]",
-                mix["output"]
-            ]
-        
-        print("Running:", " ".join(cmd))
-        subprocess.run(cmd, check=True)
+        run_mixer(outputs,job_order,spec)
 
 def run_job(sonifier, cfg, output):
     mode = cfg["mode"]
@@ -165,7 +111,7 @@ def merge(*dicts):
             out.update(d)
     return out
     
-def sanitize(val):
+def sanitise(val):
     if val is None:
         return "none"
     return re.sub(r"[^a-zA-Z0-9._-]+", "", str(val))
@@ -178,7 +124,7 @@ def build_filename(cfg):
             v = cfg[key]
             if key == "temp" and v is not None:
                 v = f"{v}K"
-            parts.append(f"{key}-{sanitize(v)}")
+            parts.append(f"{key}-{sanitise(v)}")
 
     return "_".join(parts) + ".wav"
 
