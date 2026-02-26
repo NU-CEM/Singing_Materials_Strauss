@@ -45,7 +45,7 @@ The phonon dos also determines various material properties including thermal tra
     <figcaption>Figure 2: Tin sulfide (SnS) density of states. Adapted with permission from <a href="https://doi.org/10.1039/d1cp02597j">https://doi.org/10.1039/d1cp02597j</a>.</figcaption>
 </figure>
 </br>
-</br
+</br>
 
 ### Sonification of Octahedral Tilt Amplitudes
 
