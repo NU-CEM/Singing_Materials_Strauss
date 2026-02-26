@@ -1,5 +1,5 @@
 import yaml
-from MP_interface import process_imaginary
+from mp_interface import process_imaginary
 
 def gamma_frequencies_from_mesh(phonon_mesh_filepath):
     """return phonon frequencies at gamma point from a phonopy mesh.yaml. Assumes gamma point is zeroth
