@@ -1,0 +1,12 @@
+Solitary Choir for Decent Sampler, version 1.1
+
+Date: 2022-08-06
+Name: James Peacock
+Profile: https://www.pianobook.co.uk/profile/jamespeacock42
+
+Thank you for downloading this sample pack, I hope you enjoy it, and that it may be of some use to you. If so, please consider
+tipping me if you can, I'd really appreciate it.
+
+The range of samples is G2 to C5, although I've programmed Decent Sampler to artificially extend the top and bottom notes to fill
+the entire keyboard because, well, why not? The default settings are good for dramatic volume swells and the like, although you could
+also try reducing the reverb level and upping the release time for a more intimate sound should you so desire.
