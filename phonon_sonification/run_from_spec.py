@@ -4,7 +4,7 @@ import re
 from copy import deepcopy
 from pathlib import Path
 from phonon_dos_sonifier import PhononDOSSonifier
-from phonon_mixer import superposition, concatenation, composition
+from phonon_mixer import start_mixing
 
 KEY_MAP = {
   "mode": "m",
@@ -56,7 +56,7 @@ def run_spec(path: str):
             job_order.append(job_name)
              
     if "mix" in spec:
-        run_mixer(outputs,job_order,spec)
+        start_mixing(outputs,job_order,spec)
 
 def run_job(sonifier, cfg, output):
     mode = cfg["mode"]

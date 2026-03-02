@@ -135,6 +135,10 @@ def dos_dict_to_dataframe(dos_dict):
                 rows.append(row)
 
     return pd.DataFrame(rows)
+
+def phonon_shannon_entropy(f,dos):
+    p = f / np.sum(f)  # normalise to give a probability distribution
+    return np.sum(p*np.log(p))
     
 def phonon_band_centre(f,dos):
     """for each particular chemical species, get the phonon band centre in Hz (discounting any negative frequencies). Return as a dictionary with species string as key."""

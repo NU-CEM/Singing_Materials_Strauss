@@ -1,4 +1,5 @@
 import subprocess
+import random
 import tempfile
 from pathlib import Path
 
@@ -20,9 +21,7 @@ def start_mixing(outputs,job_order,spec):
     if mode == "super":
         cmd += superposition(outputs,mix)
     elif mode == "concat":
-        cmd += concatenation(outputs,job_order,mix)
-    elif mode == "compose":
-        cmd += composition(outputs, job_order, mix)
+        cmd += concatenation(outputs,job_order,mix,spec)
     else:
         RaiseError("mode not recognised")
 
@@ -58,7 +57,7 @@ def superposition(outputs,mix):
         mix["output"]
     ]
             
-def concatenation(outputs,job_order,mix):  
+def concatenation(outputs,job_order,mix,spec):  
             
     """
     outputs: dict mapping job_name -> wav path
@@ -67,7 +66,15 @@ def concatenation(outputs,job_order,mix):
 
     order = mix.get("order")
 
-    if order:
+    if order.split()[0] == "random":
+        jobs = spec["jobs"]
+        job_names = []
+        for job in jobs:
+            job_names.append(job["name"])
+        ordered_names = random.choices(job_names, k=int(order.split()[1]))
+        ordered_files = [outputs[name] for name in ordered_names]
+        
+    elif order:
         try:
             ordered_names = order
             ordered_files = [outputs[name] for name in ordered_names]
@@ -113,47 +120,3 @@ def concatenation(outputs,job_order,mix):
         mix["output"]
     ]
 
-def composition(outputs,mix):
-    """
-    Executes a sequence of concat/super stages defined in mix["composition"]
-    """
-
-    stages = mix.get("composition")
-    if not stages:
-        raise ValueError("compose mode requires mix.composition list")
-
-    current_outputs = dict(outputs)
-    current_order = list(job_order)
-
-    temp_files = []
-
-    for i, stage in enumerate(stages):
-        stage_type = stage["type"]
-
-        # each stage writes to a temp wav
-        tmp = Path(tempfile.mkstemp(suffix=".wav")[1])
-        temp_files.append(tmp)
-
-        stage_mix = dict(stage)
-        stage_mix["output"] = str(tmp)
-
-        if stage_type == "concat":
-            cmd = ["ffmpeg"] + concatenation(current_outputs, current_order, stage_mix)
-
-        elif stage_type == "super":
-            cmd = ["ffmpeg"] + superposition(current_outputs, stage_mix)
-
-        else:
-            raise ValueError(f"Unknown composition stage: {stage_type}")
-
-        subprocess.run(cmd, check=True)
-
-        # next stage sees only this result (named "result")
-        current_outputs = {"result": str(tmp)}
-        current_order = ["result"]
-
-    # Final move to requested output
-    final_out = mix["output"]
-    Path(current_outputs["result"]).rename(final_out)
-
-    return []

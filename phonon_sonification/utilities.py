@@ -1,3 +1,5 @@
+import numpy as np
+
 def format_duration_for_strauss(duration_seconds: float) -> str:
     """Convert duration in seconds to STRAUSS Score format "Xm Ys" """
     minutes = int(duration_seconds // 60)
