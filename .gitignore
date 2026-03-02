@@ -88,7 +88,13 @@ docs/_build/
 *.sf2
 *.sfz
 
+# ignore gifs as these can also be big and used for testing
+*.gif
+
 # Also don't want ipynb checkpoints commited to the repo
 */.ipynb_checkpoints/
+.ipynb_checkpoints
 
 **/.DS_Store
+
+conda.sh
