@@ -84,7 +84,7 @@ class PhononDOSSonifier:
         self.fmax_audible = fmax_audible
         
         # Get DOS data
-        print(f"Fetching phonon DOS data for {mp_id}...")
+        print(f"Finding phonon DOS data for {mp_id}...")
         self.dos_dict = dos_stats_analysis(mp_id, temp=temperatures)
         
         # Extract frequency range across all sites
@@ -100,16 +100,16 @@ class PhononDOSSonifier:
         if fmin_phonon is None:
             self.fmin_phonon = min(all_fmin)
         else:
-            self.fmin_phonon = fmin_phonon
+            self.fmin_phonon = float(fmin_phonon)
             print(f"Phonon frequency minimum  (user specified): {self.fmin_phonon:.2e} Hz")
         print(f"Phonon frequency minimum  (data extracted): {min(all_fmin):.2e} Hz")
         
         if fmax_phonon is None:
             self.fmax_phonon = max(all_fmax)
         else:
-            self.fmax_phonon = fmax_phonon
+            self.fmax_phonon = float(fmax_phonon)
             print(f"Phonon frequency maximum  (user specified): {self.fmax_phonon:.2e} Hz")
-        print(f"Phonon frequency maximum  (data extracted): {min(all_fmax):.2e} Hz")
+        print(f"Phonon frequency maximum  (data extracted): {max(all_fmax):.2e} Hz")
 
         if min(all_fmin) < self.fmin_phonon or max(all_fmax) > self.fmax_phonon:
             print("warning: all frequencies outside of the user specified range will be ignored.")
@@ -544,8 +544,10 @@ class PhononDOSSonifier:
         print(f"{'='*60}\n")
 
         soni_list = []
+        site_name_list = []
         for config in site_configs:
             site = config['site']
+            site_name_list.append(site)
             if mode == 'synth':
                 soni_list.append(self.sonify_site_synth(site, 
                                                         temperature= temperature,
@@ -571,9 +573,10 @@ class PhononDOSSonifier:
         # Save
         if output_path is None:
             temp_str = f"{int(temperature)}K" if temperature else "athermal"
+            site_name_str = " ".join(site_name_list)
             lfo_str = lfo_target if use_lfo else None
             mapping_str = mapping if use_lfo else None
-            output_path = f"phonon_{self.mp_id}_{temp_str}_{mode}_{lfo_str or mapping_str or ''}_chord.wav"
+            output_path = f"phonon_{self.mp_id}_{temp_str}_{mode}_{lfo_str or mapping_str or ''}_{site_name_str}.wav"
         
         joint_soni.save(output_path)
         print(f"{'='*60}\n")
@@ -588,10 +591,10 @@ class PhononDOSSonifier:
                           mapping: str = None,
                           mode: bool = 'spectral') -> Sonification:
         """
-        Convenience: sonify all sites
+        Convenience: sonify all sites (not the total dos)
         """
         sites = list(self.dos_dict['projection'].keys())
-        sites.remove('all')
+        sites.remove('total')
         
         site_configs = []
         for site in sites:

@@ -6,9 +6,9 @@ from pathlib import Path
 from phonon_dos_sonifier import PhononDOSSonifier
 from phonon_mixer import start_mixing
 
-KEY_MAP = {
+KEY_MAP = {    # TO FIX: THIS IS USED FOR NAMING FILES BUT IS INCONSISTENT WITH CLI
   "mode": "m",
-  "site": "s",
+  "sites": "s",
   "temp": "T",
   "mapping": "map",
   "lfo": "lfo",
@@ -31,11 +31,15 @@ def run_spec(path: str):
 
     temp = globals_cfg.get("temp")
     duration = globals_cfg.get("duration", 10.0)
+    fmin_phonon = globals_cfg.get("fmin_phonon", None)
+    fmax_phonon = globals_cfg.get("fmax_phonon", None)
 
     sonifier = PhononDOSSonifier(
                 mp_id=spec["mp_id"],
                 duration=duration,
-                temperatures=[temp] if temp is not None else None
+                temperatures=[temp] if temp is not None else None,
+                fmin_phonon = fmin_phonon,
+                fmax_phonon = fmax_phonon
                 )
 
     for sweep in sweep_cases:
@@ -60,9 +64,10 @@ def run_spec(path: str):
 
 def run_job(sonifier, cfg, output):
     mode = cfg["mode"]
+    sites = cfg.get("sites")
     temp = cfg.get("temp")
 
-    if cfg.get("all_sites", False):
+    if sites == "all":
         return sonifier.sonify_all_sites(
             temperature=temp,
             output_path=output,
@@ -72,7 +77,18 @@ def run_job(sonifier, cfg, output):
             mode=mode
         )
 
-    elif "sites" in cfg:
+    elif type(sites) is str:
+        return sonifier.sonify_single_site(
+            site_name=cfg["sites"],
+            temperature=temp,
+            output_path=output,
+            mapping=cfg.get("mapping"),
+            use_lfo=cfg.get("lfo", False),
+            lfo_target=cfg.get("lfo_target", "pitch"),
+            mode=mode
+        )
+
+    elif type(sites) is list:
         site_configs = [{"site": s} for s in cfg["sites"]]
         return sonifier.sonify_multi_site(
             site_configs=site_configs,
@@ -84,19 +100,8 @@ def run_job(sonifier, cfg, output):
             mode=mode
         )
 
-    elif "site" in cfg:
-        return sonifier.sonify_single_site(
-            site_name=cfg["site"],
-            temperature=temp,
-            output_path=output,
-            mapping=cfg.get("mapping"),
-            use_lfo=cfg.get("lfo", False),
-            lfo_target=cfg.get("lfo_target", "pitch"),
-            mode=mode
-        )
-
     else:
-        raise ValueError("Job must specify site, sites, or all_sites")
+        raise ValueError("Job must specify single site, a lit of sites, or `all`")
 
 def expand_sweeps(sweeps: dict):
     keys = sweeps.keys()

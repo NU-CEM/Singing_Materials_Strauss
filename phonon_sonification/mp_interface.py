@@ -2,9 +2,11 @@ import numpy as np
 import pandas as pd
 import math
 import scipy
+import pickle
 from scipy import constants
 import os
 from dotenv import load_dotenv
+from pathlib import Path
 from utilities import process_imaginary, process_imaginary_dos
 
 load_dotenv () # use python-dotenv library for storing secrets in a .env file in project route (or at another path that is specified here)
@@ -48,23 +50,37 @@ def dos_data_from_mp_id(mp_id):
 
 def get_dos_raw(mp_id):
     """get the full and projected densities. Return as a nested dictionary. Arg is the materials project ID. """
-    dos = dos_data_from_mp_id(mp_id)
 
-    dos_dict = {}
-    dos_dict['metadata'] = {'mp_id' : mp_id}
-    dos_dict['projection'] = {}
+    filepath = Path(f"{mp_id}_dos.pickle")
+    if filepath.is_file():
+        print("Fetching from existing file...")
+        with open(filepath, 'rb') as handle:
+            dos_dict = pickle.load(handle)
+    else:
+        print("Fetching from Materials Project servers...")
+        dos = dos_data_from_mp_id(mp_id)
 
-    frequencies = np.array(dos.frequencies)*1E12 # convert from THz to Hz
-    frequencies = process_imaginary(frequencies)  
+        dos_dict = {}
+        dos_dict['metadata'] = {'mp_id' : mp_id}
+        dos_dict['projection'] = {}
     
-    densities = process_imaginary_dos(dos.densities,frequencies) 
-    dos_dict['projection']['all'] = {'densities': densities,
-                                     'frequencies': frequencies}
-            
-    for i,site in enumerate(dos.structure.relabel_sites().sites):
-        densities = process_imaginary_dos(dos.projected_densities[i],frequencies) 
-        dos_dict['projection'][site.label] = {'densities': densities,
-                                                        'frequencies': frequencies} 
+        frequencies = np.array(dos.frequencies)*1E12 # convert from THz to Hz
+        frequencies = process_imaginary(frequencies)  
+        dos_dict['metadata']['bin_width'] = frequencies[1]-frequencies[0]
+        print(f"bin width is {dos_dict['metadata']['bin_width']/1E12} THz")
+        
+        densities = process_imaginary_dos(dos.densities,frequencies) 
+        dos_dict['projection']['total'] = {'densities': densities,
+                                         'frequencies': frequencies}
+                
+        for i,site in enumerate(dos.structure.relabel_sites().sites):
+            densities = process_imaginary_dos(dos.projected_densities[i],frequencies) 
+            dos_dict['projection'][site.label] = {'densities': densities,
+                                                            'frequencies': frequencies} 
+    
+        with open(filepath, 'wb') as handle:
+            pickle.dump(dos_dict, handle, protocol=pickle.HIGHEST_PROTOCOL)
+        
     return dos_dict
     
 def dos_stats_analysis(mp_id,temp=None):
@@ -84,6 +100,7 @@ def dos_stats_analysis(mp_id,temp=None):
         site_dict['stats']['athermal']['quantile_25'] = weighted_quantile(f, densities, 0.25)
         site_dict['stats']['athermal']['quantile_75'] = weighted_quantile(f, densities, 0.75)
         site_dict['stats']['athermal']['IQR'] = phonon_dos_IQR(f,densities)
+        site_dict['stats']['athermal']['shannon_entropy'] = phonon_shannon_entropy(f,densities)
         site_dict['stats']['athermal']['densities'] = densities
         
         if temp:
@@ -98,6 +115,7 @@ def dos_stats_analysis(mp_id,temp=None):
                 site_dict['stats']['thermal'][str(t)]['quantile_25'] = weighted_quantile(f, densities_scaled, 0.25)
                 site_dict['stats']['thermal'][str(t)]['quantile_75'] = weighted_quantile(f, densities_scaled, 0.75)
                 site_dict['stats']['thermal'][str(t)]['IQR'] = phonon_dos_IQR(f,densities_scaled)
+                site_dict['stats']['thermal'][str(t)]['shannon_entropy'] = phonon_shannon_entropy(f,densities)
                 site_dict['stats']['thermal'][str(t)]['densities'] = densities_scaled
 
     return dos_dict
@@ -137,8 +155,9 @@ def dos_dict_to_dataframe(dos_dict):
     return pd.DataFrame(rows)
 
 def phonon_shannon_entropy(f,dos):
-    p = f / np.sum(f)  # normalise to give a probability distribution
-    return np.sum(p*np.log(p))
+    p = dos / np.sum(dos)  # normalise to give a probability distribution
+    p_nonzero = p[p > 0]  # mask out zero probs. this is legit because they are zero in the summation anyhow
+    return np.sum(p_nonzero*np.log(p_nonzero))
     
 def phonon_band_centre(f,dos):
     """for each particular chemical species, get the phonon band centre in Hz (discounting any negative frequencies). Return as a dictionary with species string as key."""

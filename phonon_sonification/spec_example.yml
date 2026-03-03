@@ -1,0 +1,80 @@
+mp_id: mp-3953
+
+globals:
+  duration: 10.0   # should be able to read in MP data without specifying duration, so this can be overridden at job level, change needed to phonon sonification module
+  temp: null # should also be able to specify multiple temps here, and then jobs could be at one of a selection of thse (I think this would break it currently?)
+  lfo: true
+  lfo_target: volume
+  overwrite: false
+
+jobs:
+  - name: one
+    mode: spectral
+    sites: all
+
+  - name: two
+    mode: choral
+    sites: Ca_1
+
+  - name: three
+    mode: spectral
+    sites: Ca_1
+
+  - name: four
+    mode: choral
+    sites: O_1
+
+  - name: five
+    mode: choral
+    sites: all
+
+  - name: six
+    mode: spectral
+    sites: O_1
+
+  - name: seven
+    mode: choral
+    sites: C_1
+
+  - name: eight
+    mode: spectral
+    sites: [C_1, Ca_1]
+
+  - name: nine
+    mode: spectral
+    sites: C_1
+
+  - name: ten
+    mode: choral
+    sites: [C_1, Ca_1]
+    
+  - name: eleven
+    mode: spectral
+    sites: [C_1, O_1]
+    
+  - name: twelve
+    mode: choral
+    sites: [C_1, O_1]
+
+  - name: thirteen
+    mode: choral
+    sites: [Ca_1, O_1]
+
+  - name: fourteen
+    mode: spectral
+    sites: [Ca_1, O_1]
+    
+mix:
+  output: all_combo_mp-3953_long.wav
+  overwrite: true
+  quiet: true
+  fade: 4.0          
+  curve: tri        
+  mode: concat  # super, concat, compose. If super --> weighted and normalise. If concat --> order and fade. 
+  weights:
+    one: 1.0   
+    two: 1.0
+    three: 0.0
+  normalise: true
+  order: random 18  # or can specify `random x` where x is the number of jobs to combine in random order.
+

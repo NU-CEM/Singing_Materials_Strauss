@@ -66,7 +66,7 @@ def concatenation(outputs,job_order,mix,spec):
 
     order = mix.get("order")
 
-    if order.split()[0] == "random":
+    if order and order.split()[0] == "random":
         jobs = spec["jobs"]
         job_names = []
         for job in jobs:
