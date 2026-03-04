@@ -1,4 +1,4 @@
-mp_id: mp-
+mp_id: mp-4651
 globals:
   duration: 5.0   # should be able to read in MP data without specifying duration, so this can be overridden at job level, change needed to phonon sonification module
   temp: null # should also be able to specify multiple temps here, and then jobs could be at one of a selection of thse (I think this would break it currently?)
@@ -11,7 +11,7 @@ globals:
 jobs:
 
   - name: one
-    mode: choral
+    mode: spectral
     sites: all
 
 

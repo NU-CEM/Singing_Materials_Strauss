@@ -13,7 +13,8 @@ KEY_MAP = {    # TO FIX: THIS IS USED FOR NAMING FILES BUT IS INCONSISTENT WITH 
   "mapping": "map",
   "lfo": "lfo",
   "lfo_target": "lfo_tar",
-  "duration": "dur"
+  "duration": "dur",
+  "mp_id" : "mp"  
 }
 
 def run_spec(path: str):
@@ -44,7 +45,7 @@ def run_spec(path: str):
 
     for sweep in sweep_cases:
         for job in jobs:
-            cfg = merge(globals_cfg, sweep, job)
+            cfg = merge(globals_cfg, sweep, job, spec)
 
             output = cfg.get("output") or build_filename(cfg)
             overwrite = cfg.get("overwrite", False)
